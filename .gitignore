@@ -44,3 +44,5 @@ next-env.d.ts
 >>>>>>> fd96fba (initial scaffold)
 node_modules/
 .env
+
+/src/generated/prisma
