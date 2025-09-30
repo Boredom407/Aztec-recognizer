@@ -1,8 +1,5 @@
-// Prisma schema file
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -18,11 +15,10 @@ model User {
   image               String?
   discordId           String?      @unique
   points              Int          @default(0)
-
   accounts            Account[]
-  sessions            Session[]
   nominationsMade     Nomination[] @relation("nominator")
   nominationsReceived Nomination[] @relation("nominee")
+  sessions            Session[]
   votes               Vote[]
 }
 
@@ -32,15 +28,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -50,8 +45,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -63,26 +57,23 @@ model VerificationToken {
 }
 
 model Nomination {
-  id           String   @id @default(cuid())
-  nominatorId  String
-  nomineeId    String
-  reason       String?
-  createdAt    DateTime @default(now())
-
-  nominator User @relation("nominator", fields: [nominatorId], references: [id])
-  nominee   User @relation("nominee",   fields: [nomineeId],   references: [id])
-
-  votes Vote[]
+  id          String   @id @default(cuid())
+  nominatorId String
+  nomineeId   String
+  reason      String?
+  createdAt   DateTime @default(now())
+  nominator   User     @relation("nominator", fields: [nominatorId], references: [id])
+  nominee     User     @relation("nominee", fields: [nomineeId], references: [id])
+  votes       Vote[]
 }
 
 model Vote {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   nominationId String
   voterId      String
-  createdAt    DateTime @default(now())
-
-  nomination Nomination @relation(fields: [nominationId], references: [id])
-  voter      User       @relation(fields: [voterId], references: [id])
+  createdAt    DateTime   @default(now())
+  nomination   Nomination @relation(fields: [nominationId], references: [id])
+  voter        User       @relation(fields: [voterId], references: [id])
 
   @@unique([nominationId, voterId])
 }
