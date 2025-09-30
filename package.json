@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "pnpm exec prisma generate && next build --turbopack",
+    "postinstall": "pnpm exec prisma generate",
     "start": "next start",
     "lint": "eslint",
     "test": "pnpm test:unit",
