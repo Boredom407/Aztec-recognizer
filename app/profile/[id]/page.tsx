@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { SignInSection } from "@/components/sign-in-section"
 import { getServerAuthSession } from "@/lib/auth"
 import { fetchNominationsWithMeta } from "@/lib/nominations"
+import type { NominationWithMeta } from "@/lib/nominations"
 import { prisma } from "@/lib/prisma"
 
 export default async function ProfilePage({
@@ -30,7 +31,11 @@ export default async function ProfilePage({
 
   const currentUserId = session?.user?.id
 
-  const [receivedNominations, submittedNominations, votedNominations] =
+  const [receivedNominations, submittedNominations, votedNominations]: [
+    NominationWithMeta[],
+    NominationWithMeta[],
+    NominationWithMeta[],
+  ] =
     await Promise.all([
       fetchNominationsWithMeta({
         currentUserId,
