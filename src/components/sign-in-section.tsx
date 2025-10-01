@@ -3,6 +3,17 @@
 import Link from "next/link"
 import { signIn } from "next-auth/react"
 
+async function handleDiscordSignIn() {
+  try {
+    const result = await signIn("discord", { callbackUrl: "/" })
+    if (result?.error) {
+      console.error("Discord sign-in failed", result.error)
+    }
+  } catch (error) {
+    console.error("Discord sign-in threw", error)
+  }
+}
+
 export function SignInSection() {
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg border border-zinc-200 bg-white p-8 text-center shadow-sm">
@@ -12,7 +23,7 @@ export function SignInSection() {
       </p>
       <div className="flex flex-col items-stretch gap-2 sm:flex-row">
         <button
-          onClick={() => signIn("discord")}
+          onClick={handleDiscordSignIn}
           className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
         >
           Sign in with Discord
