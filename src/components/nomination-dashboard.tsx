@@ -1,9 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
-import { signOut } from "next-auth/react"
 
+import { DashboardHeader } from "@/components/dashboard-header"
+import { NominationFeed } from "@/components/nomination-feed"
 import type { NominationWithMeta } from "@/lib/nominations"
 
 type CandidateUser = {
@@ -137,33 +137,12 @@ export function NominationDashboard({
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <header className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-sm text-zinc-500">Signed in as</p>
-          <div className="text-lg font-semibold text-zinc-800">
-            {currentUser.name ?? "Aztec member"}
-          </div>
-        </div>
-        <div className="flex flex-col items-stretch gap-2 md:flex-row md:items-center">
-          <Link
-            href="/leaderboard"
-            className="rounded border border-indigo-200 px-3 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-50"
-          >
-            View leaderboard
-          </Link>
-          <button
-            onClick={() => signOut()}
-            className="rounded border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
+      <DashboardHeader name={currentUser.name} />
 
       {showCreateForm && (
-        <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-zinc-800">Create a nomination</h2>
-          <p className="mt-1 text-sm text-zinc-500">
+        <section className="rounded-2xl border border-white/10 bg-white/10 p-6 shadow-inner backdrop-blur">
+          <h2 className="text-xl font-semibold text-white">Create a nomination</h2>
+          <p className="mt-1  text-sm text-white/70">
             Choose a community member to recognize and optionally explain why they deserve it.
           </p>
           <form
@@ -226,7 +205,7 @@ export function NominationDashboard({
       )}
 
       {showFeed && (
-        <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-white/10 bg-white/10 p-6 shadow-inner backdrop-blur">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold text-zinc-800">Current nominations</h2>
             {voteError && <p className="text-sm text-red-600">{voteError}</p>}

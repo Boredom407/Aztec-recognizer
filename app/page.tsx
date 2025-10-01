@@ -1,5 +1,7 @@
+import Link from "next/link"
+
 import { NominationDashboard } from "@/components/nomination-dashboard"
-import { SignInSection } from "@/components/sign-in-section"
+import { LandingHero } from "@/components/landing-hero"
 import { getServerAuthSession } from "@/lib/auth"
 import { fetchNominationsWithMeta } from "@/lib/nominations"
 import { prisma } from "@/lib/prisma"
@@ -7,35 +9,51 @@ import { prisma } from "@/lib/prisma"
 export default async function HomePage() {
   const session = await getServerAuthSession()
 
+  if (!session?.user) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+        <LandingHero />
+        <p className="mt-10 text-sm text-white/60">
+          Curious who is leading the pack? {" "}
+          <Link href="/leaderboard" className="font-semibold text-yellow-300 underline-offset-4 hover:underline">
+            View the leaderboard
+          </Link>
+        </p>
+      </main>
+    )
+  }
+
   const [nominations, users] = await Promise.all([
-    fetchNominationsWithMeta({ currentUserId: session?.user?.id }),
-    session?.user
-      ? prisma.user.findMany({
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            points: true,
-          },
-          orderBy: {
-            name: "asc",
-          },
-        })
-      : Promise.resolve([]),
+    fetchNominationsWithMeta({ currentUserId: session.user.id }),
+    prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        points: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
   ])
 
   return (
-    <main className="min-h-screen bg-zinc-100 py-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4">
-        {session?.user ? (
+    <main className="flex min-h-screen items-start justify-center px-4 py-14">
+      <div className="w-full max-w-5xl rounded-2xl bg-white/10 p-6 shadow-xl backdrop-blur md:p-10">
+        <h1 className="text-3xl font-semibold text-white md:text-4xl">
+          Welcome back, {session.user.name ?? "Aztec member"}
+        </h1>
+        <p className="mt-2 text-white/70">
+          Review nominations, cast your votes, and keep the recognition flowing.
+        </p>
+        <div className="mt-8">
           <NominationDashboard
             currentUser={session.user}
             nominations={nominations}
             users={users}
           />
-        ) : (
-          <SignInSection />
-        )}
+        </div>
       </div>
     </main>
   )
