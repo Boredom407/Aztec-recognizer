@@ -84,7 +84,6 @@ export function NominationDashboard({
         ),
       )
     } catch {
-
       setVoteError("Something went wrong while updating your vote.")
     } finally {
       setPendingVoteId(null)
@@ -128,7 +127,6 @@ export function NominationDashboard({
       setNominations((prev) => [nomination, ...prev])
       setFormState({ nomineeId: "", reason: "" })
     } catch {
-
       setFormError("Something went wrong while submitting your nomination.")
     } finally {
       setIsSubmitting(false)
@@ -136,28 +134,38 @@ export function NominationDashboard({
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-8 text-white">
       <DashboardHeader name={currentUser.name} />
 
       {showCreateForm && (
         <section className="rounded-2xl border border-white/10 bg-white/10 p-6 shadow-inner backdrop-blur">
-          <h2 className="text-xl font-semibold text-white">Create a nomination</h2>
-          <p className="mt-1  text-sm text-white/70">
-            Choose a community member to recognize and optionally explain why they deserve it.
-          </p>
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Create a nomination</h2>
+              <p className="text-sm text-white/70">
+                Choose a community member to recognize and optionally explain why they deserve it.
+              </p>
+            </div>
+            {nominatableUsers.length === 0 && (
+              <p className="text-sm text-yellow-200">
+                Invite more teammates to nominate and vote!
+              </p>
+            )}
+          </div>
+
           <form
-            className="mt-4 flex flex-col gap-4"
+            className="mt-6 grid gap-4 md:grid-cols-2"
             onSubmit={handleCreateNomination}
             data-testid="nomination-form"
           >
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="font-medium text-zinc-700">Nominee</span>
+            <label className="flex flex-col gap-2 text-sm md:col-span-1">
+              <span className="font-medium text-white">Nominee</span>
               <select
                 value={formState.nomineeId}
                 onChange={(event) =>
                   setFormState((prev) => ({ ...prev, nomineeId: event.target.value }))
                 }
-                className="rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white outline-none transition focus:border-yellow-300 focus:ring-2 focus:ring-yellow-400"
                 required
                 disabled={nominatableUsers.length === 0 || isSubmitting}
                 data-testid="nomination-select"
@@ -168,15 +176,15 @@ export function NominationDashboard({
                     : "Select a community member"}
                 </option>
                 {nominatableUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
+                  <option key={user.id} value={user.id} className="text-brandDark">
                     {user.name ?? "Unnamed member"}
                   </option>
                 ))}
               </select>
             </label>
 
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="font-medium text-zinc-700">Reason (optional)</span>
+            <label className="flex flex-col gap-2 text-sm md:col-span-1">
+              <span className="font-medium text-white">Reason (optional)</span>
               <textarea
                 value={formState.reason}
                 onChange={(event) =>
@@ -185,93 +193,41 @@ export function NominationDashboard({
                 maxLength={500}
                 rows={3}
                 placeholder="Share why this person deserves recognition."
-                className="rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white outline-none transition placeholder:text-white/40 focus:border-yellow-300 focus:ring-2 focus:ring-yellow-400"
                 disabled={isSubmitting}
                 data-testid="nomination-reason"
               />
+              <span className="text-xs text-white/50">
+                {500 - formState.reason.length} characters remaining
+              </span>
             </label>
 
-            {formError && <p className="text-sm text-red-600">{formError}</p>}
+            {formError && (
+              <p className="md:col-span-2 text-sm font-medium text-red-300">{formError}</p>
+            )}
 
-            <button
-              type="submit"
-              className="self-start rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-50"
-              disabled={isSubmitting || nominatableUsers.length === 0}
-            >
-              {isSubmitting ? "Submitting..." : "Submit nomination"}
-            </button>
+            <div className="md:col-span-2 flex items-center justify-end gap-3">
+              <button
+                type="submit"
+                className="rounded-lg bg-yellow-400 px-4 py-2 text-sm font-semibold text-brandDarker shadow transition hover:bg-yellow-300 disabled:opacity-50"
+                disabled={isSubmitting || nominatableUsers.length === 0}
+              >
+                {isSubmitting ? "Submitting..." : "Submit nomination"}
+              </button>
+            </div>
           </form>
         </section>
       )}
 
       {showFeed && (
-        <section className="rounded-2xl border border-white/10 bg-white/10 p-6 shadow-inner backdrop-blur">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold text-zinc-800">Current nominations</h2>
-            {voteError && <p className="text-sm text-red-600">{voteError}</p>}
-          </div>
-
-          {nominations.length === 0 ? (
-            <p className="mt-4 text-sm text-zinc-500">
-              No nominations yet. Be the first to recognize someone!
-            </p>
-          ) : (
-            <ul className="mt-4 flex flex-col gap-4">
-              {nominations.map((nomination) => {
-                const voteButtonVariant = nomination.hasVoted
-                  ? "bg-green-600 hover:bg-green-500"
-                  : "bg-indigo-600 hover:bg-indigo-500"
-                const voteButtonState = pendingVoteId === nomination.id ? " opacity-60" : ""
-                const voteButtonText =
-                  pendingVoteId === nomination.id
-                    ? "Saving..."
-                    : nomination.hasVoted
-                      ? "Voted"
-                      : "Vote"
-
-                return (
-                  <li
-                    key={nomination.id}
-                    className="flex flex-col gap-3 rounded border border-zinc-100 bg-zinc-50 p-4"
-                    data-testid={`nomination-card-${nomination.id}`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <div className="text-sm text-zinc-500">
-                        Nominated by {nomination.nominator.name ?? "Anonymous"}
-                      </div>
-                      <div className="text-xl font-semibold text-zinc-800">
-                        {nomination.nominee.name ?? "Unnamed member"}
-                      </div>
-                    </div>
-
-                    {nomination.reason && (
-                      <p className="text-sm text-zinc-600">{nomination.reason}</p>
-                    )}
-
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm font-medium text-zinc-700">
-                        {nomination.voteCount} vote{nomination.voteCount === 1 ? "" : "s"}
-                      </span>
-
-                      <button
-                        onClick={() => handleVote(nomination.id, nomination.hasVoted)}
-                        disabled={pendingVoteId === nomination.id}
-                        className={
-                          "rounded px-3 py-2 text-sm font-medium text-white transition " +
-                          voteButtonVariant +
-                          voteButtonState
-                        }
-                        data-testid={`vote-button-${nomination.id}`}
-                      >
-                        {voteButtonText}
-                      </button>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </section>
+        <div className="space-y-3">
+          {voteError && <p className="text-sm font-medium text-red-300">{voteError}</p>}
+          <NominationFeed
+            nominations={nominations}
+            pendingVoteId={pendingVoteId}
+            onVote={handleVote}
+          />
+        </div>
       )}
     </div>
   )
