@@ -7,7 +7,17 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  theme: { extend: {} },
+  theme: {
+    extend: {
+      colors: {
+        brandDark: "#2E0700",
+        brandDarker: "#2D0500",
+      },
+      backgroundImage: {
+        "brand-gradient": "linear-gradient(to right, #2E0700, #2D0500)",
+      },
+    },
+  },
   plugins: [],
 }
 

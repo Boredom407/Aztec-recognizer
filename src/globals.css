@@ -2,7 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-inter: "Inter", sans-serif;
+}
+
 html,
 body {
-  @apply min-h-screen bg-brand-gradient text-white;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--font-inter);
+  background-image: linear-gradient(to right, #2E0700, #2D0500);
+  background-color: #2E0700;
+  color: #ffffff;
 }
