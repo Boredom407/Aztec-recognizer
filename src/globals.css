@@ -4,8 +4,5 @@
 
 html,
 body {
-  font-family: theme("fontFamily.sans");
-  background: theme("backgroundImage.brand-gradient");
-  color: white;
-  min-height: 100vh;
+  @apply min-h-screen bg-brand-gradient text-white;
 }
