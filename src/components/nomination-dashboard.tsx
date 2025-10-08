@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useMemo, useState } from "react"
 
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -13,6 +14,15 @@ type CandidateUser = {
   points?: number | null
 }
 
+type PaginationInfo = {
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
 type NominationDashboardProps = {
   currentUser: {
     id: string
@@ -23,6 +33,7 @@ type NominationDashboardProps = {
   users: CandidateUser[]
   showCreateForm?: boolean
   showFeed?: boolean
+  pagination?: PaginationInfo
 }
 
 type ApiErrorResponse = {
@@ -39,6 +50,7 @@ export function NominationDashboard({
   users,
   showCreateForm = true,
   showFeed = true,
+  pagination,
 }: NominationDashboardProps) {
   const [nominations, setNominations] = useState(initialNominations)
   const [pendingVoteId, setPendingVoteId] = useState<string | null>(null)
@@ -227,6 +239,32 @@ export function NominationDashboard({
             pendingVoteId={pendingVoteId}
             onVote={handleVote}
           />
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
+              <p className="text-sm text-white/70">
+                Page {pagination.page} of {pagination.totalPages} ({pagination.totalCount} total nominations)
+              </p>
+              <div className="flex gap-2">
+                {pagination.hasPreviousPage && (
+                  <Link
+                    href={`?page=${pagination.page - 1}&pageSize=${pagination.pageSize}`}
+                    className="rounded bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/20"
+                  >
+                    Previous
+                  </Link>
+                )}
+                {pagination.hasNextPage && (
+                  <Link
+                    href={`?page=${pagination.page + 1}&pageSize=${pagination.pageSize}`}
+                    className="rounded bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/20"
+                  >
+                    Next
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@ import { describe, expect, it, beforeEach, beforeAll, vi } from "vitest"
 const getServerAuthSessionMock = vi.fn()
 const castVoteMock = vi.fn()
 const removeVoteMock = vi.fn()
+const checkRateLimitMock = vi.fn()
 
 vi.mock("@/lib/auth", () => ({
   getServerAuthSession: getServerAuthSessionMock,
@@ -17,6 +18,14 @@ vi.mock("@/lib/votes", () => ({
       super(message)
       this.status = status
     }
+  },
+}))
+
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: checkRateLimitMock,
+  RateLimitError: class RateLimitError extends Error {
+    status = 429
+    resetAt = Date.now() + 60000
   },
 }))
 

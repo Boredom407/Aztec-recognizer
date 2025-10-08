@@ -3,10 +3,17 @@ import Link from "next/link"
 import { NominationDashboard } from "@/components/nomination-dashboard"
 import { LandingHero } from "@/components/landing-hero"
 import { getServerAuthSession } from "@/lib/auth"
-import { fetchNominationsWithMeta } from "@/lib/nominations"
+import { fetchNominationsPaginated } from "@/lib/nominations"
 import { prisma } from "@/lib/prisma"
 
-export default async function HomePage() {
+type HomePageProps = {
+  searchParams?: {
+    page?: string
+    pageSize?: string
+  }
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
   const session = await getServerAuthSession()
 
   if (!session?.user) {
@@ -23,8 +30,15 @@ export default async function HomePage() {
     )
   }
 
-  const [nominations, users] = await Promise.all([
-    fetchNominationsWithMeta({ currentUserId: session.user.id }),
+  const page = searchParams?.page ? Number(searchParams.page) : 1
+  const pageSize = searchParams?.pageSize ? Number(searchParams.pageSize) : 20
+
+  const [paginatedData, users] = await Promise.all([
+    fetchNominationsPaginated({
+      currentUserId: session.user.id,
+      page,
+      pageSize,
+    }),
     prisma.user.findMany({
       select: {
         id: true,
@@ -50,8 +64,16 @@ export default async function HomePage() {
         <div className="mt-8">
           <NominationDashboard
             currentUser={session.user}
-            nominations={nominations}
+            nominations={paginatedData.nominations}
             users={users}
+            pagination={{
+              page: paginatedData.page,
+              pageSize: paginatedData.pageSize,
+              totalCount: paginatedData.totalCount,
+              totalPages: paginatedData.totalPages,
+              hasNextPage: paginatedData.hasNextPage,
+              hasPreviousPage: paginatedData.hasPreviousPage,
+            }}
           />
         </div>
       </div>

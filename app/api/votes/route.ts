@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server"
+import { z } from "zod"
 
 import { getServerAuthSession } from "@/lib/auth"
 import { VoteError, castVote, removeVote } from "@/lib/votes"
+import { checkRateLimit, RateLimitError } from "@/lib/rate-limit"
+
+// Schema to validate vote payload
+const VotePayloadSchema = z.object({
+  nominationId: z.string().trim().min(1, "Nomination ID is required"),
+})
 
 export async function POST(request: Request) {
   const session = await getServerAuthSession()
@@ -10,22 +17,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  let payload: unknown
-
+  // Rate limit votes
   try {
-    payload = await request.json()
+    checkRateLimit(session.user.id, "votes")
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        { error: error.message },
+        {
+          status: error.status,
+          headers: {
+            "Retry-After": String(Math.ceil((error.resetAt - Date.now()) / 1000)),
+          },
+        },
+      )
+    }
+    throw error
+  }
+
+  // Parse & validate JSON body
+  let parsed
+  try {
+    const body = await request.json()
+    parsed = VotePayloadSchema.safeParse(body)
   } catch {
     return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 })
   }
 
-  const nominationId = getNominationIdFromPayload(payload)
-
-  if (!nominationId) {
-    return NextResponse.json(
-      { error: "Nomination id is required" },
-      { status: 400 },
-    )
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]
+    return NextResponse.json({ error: issue.message }, { status: 400 })
   }
+
+  const { nominationId } = parsed.data
 
   try {
     const nomination = await castVote({
@@ -50,22 +74,39 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  let payload: unknown
-
+  // Rate limit vote removals (use same limit as votes)
   try {
-    payload = await request.json()
+    checkRateLimit(session.user.id, "votes")
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        { error: error.message },
+        {
+          status: error.status,
+          headers: {
+            "Retry-After": String(Math.ceil((error.resetAt - Date.now()) / 1000)),
+          },
+        },
+      )
+    }
+    throw error
+  }
+
+  // Parse & validate JSON body
+  let parsed
+  try {
+    const body = await request.json()
+    parsed = VotePayloadSchema.safeParse(body)
   } catch {
     return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 })
   }
 
-  const nominationId = getNominationIdFromPayload(payload)
-
-  if (!nominationId) {
-    return NextResponse.json(
-      { error: "Nomination id is required" },
-      { status: 400 },
-    )
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]
+    return NextResponse.json({ error: issue.message }, { status: 400 })
   }
+
+  const { nominationId } = parsed.data
 
   try {
     const nomination = await removeVote({
@@ -81,17 +122,4 @@ export async function DELETE(request: Request) {
 
     throw error
   }
-}
-
-function getNominationIdFromPayload(payload: unknown) {
-  if (
-    payload &&
-    typeof payload === "object" &&
-    "nominationId" in payload &&
-    typeof (payload as { nominationId: unknown }).nominationId === "string"
-  ) {
-    return (payload as { nominationId: string }).nominationId
-  }
-
-  return ""
 }

@@ -38,6 +38,7 @@ type FetchNominationsOptions = {
     | Prisma.NominationOrderByWithRelationInput
     | Prisma.NominationOrderByWithRelationInput[]
   take?: number
+  skip?: number
 }
 
 export async function fetchNominationsWithMeta({
@@ -45,12 +46,14 @@ export async function fetchNominationsWithMeta({
   where,
   orderBy,
   take,
+  skip,
 }: FetchNominationsOptions = {}) {
   const nominations = await prisma.nomination.findMany({
     include: nominationInclude,
     where,
     orderBy: orderBy ?? { createdAt: "desc" },
     ...(typeof take === "number" ? { take } : {}),
+    ...(typeof skip === "number" ? { skip } : {}),
   })
 
   const votedNominationIds = currentUserId
@@ -103,5 +106,61 @@ function mapNomination(
     nominee: nomination.nominee,
     voteCount: nomination._count.votes,
     hasVoted: votedNominationIds.has(nomination.id),
+  }
+}
+
+export type PaginatedNominations = {
+  nominations: NominationWithMeta[]
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+const DEFAULT_PAGE_SIZE = 20
+const MAX_PAGE_SIZE = 100
+
+export async function fetchNominationsPaginated({
+  currentUserId,
+  where,
+  orderBy,
+  page = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
+}: {
+  currentUserId?: string
+  where?: Prisma.NominationWhereInput
+  orderBy?:
+    | Prisma.NominationOrderByWithRelationInput
+    | Prisma.NominationOrderByWithRelationInput[]
+  page?: number
+  pageSize?: number
+}): Promise<PaginatedNominations> {
+  const sanitizedPage = Math.max(1, Math.floor(page))
+  const sanitizedPageSize = Math.max(1, Math.min(MAX_PAGE_SIZE, Math.floor(pageSize)))
+  const skip = (sanitizedPage - 1) * sanitizedPageSize
+
+  const [nominations, totalCount] = await Promise.all([
+    fetchNominationsWithMeta({
+      currentUserId,
+      where,
+      orderBy,
+      take: sanitizedPageSize,
+      skip,
+    }),
+    prisma.nomination.count({ where }),
+  ])
+
+  const totalPages = Math.ceil(totalCount / sanitizedPageSize)
+
+  return {
+    nominations,
+    page: sanitizedPage,
+    pageSize: sanitizedPageSize,
+    totalCount,
+    totalPages,
+    hasNextPage: sanitizedPage < totalPages,
+    hasPreviousPage: sanitizedPage > 1,
   }
 }

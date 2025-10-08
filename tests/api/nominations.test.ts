@@ -12,6 +12,7 @@ const mockPrisma = {
 const getServerAuthSessionMock = vi.fn()
 const fetchNominationsWithMetaMock = vi.fn()
 const fetchNominationByIdMock = vi.fn()
+const checkRateLimitMock = vi.fn()
 
 vi.mock("@/lib/prisma", () => ({
   prisma: mockPrisma,
@@ -24,6 +25,14 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/nominations", () => ({
   fetchNominationsWithMeta: fetchNominationsWithMetaMock,
   fetchNominationById: fetchNominationByIdMock,
+}))
+
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: checkRateLimitMock,
+  RateLimitError: class RateLimitError extends Error {
+    status = 429
+    resetAt = Date.now() + 60000
+  },
 }))
 
 let GET: typeof import("../../app/api/nominations/route").GET
@@ -44,7 +53,8 @@ describe("/api/nominations", () => {
     getServerAuthSessionMock.mockResolvedValue({ user: { id: "u1" } })
     fetchNominationsWithMetaMock.mockResolvedValue([{ id: "nom-1" }])
 
-    const response = await GET()
+    const request = new Request("http://localhost/api/nominations")
+    const response = await GET(request)
     const data = await response.json()
 
     expect(response.status).toBe(200)

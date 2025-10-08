@@ -65,6 +65,10 @@ model Nomination {
   nominator   User     @relation("nominator", fields: [nominatorId], references: [id])
   nominee     User     @relation("nominee", fields: [nomineeId], references: [id])
   votes       Vote[]
+
+  @@unique([nominatorId, nomineeId])
+  @@index([nomineeId])
+  @@index([createdAt])
 }
 
 model Vote {
