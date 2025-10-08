@@ -26,31 +26,32 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  callbacks: {
-    async session({ session, token }) {
-      if (!session.user) {
-        return session
-      }
-
-      if (typeof token?.id === "string") {
-        session.user.id = token.id
-      }
-
-      if (typeof token?.discordId === "string") {
-        session.user.discordId = token.discordId
-      } else {
-        session.user.discordId = undefined
-      }
-
-      return session
+  session: {
+    strategy: "database", // Use database sessions with Prisma adapter
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.discordId = user.discordId ?? undefined
+  },
+  callbacks: {
+    async session({ session, user }) {
+      // With database strategy, user object is available (not token)
+      if (session.user && user) {
+        session.user.id = user.id
+        session.user.discordId = user.discordId
       }
-
-      return token
+      return session
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
