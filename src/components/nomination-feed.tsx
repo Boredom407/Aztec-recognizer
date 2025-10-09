@@ -85,7 +85,7 @@ export function NominationFeed({ nominations, pendingVoteId, onVote }: Nominatio
             {nomination.reason && (
               <div className="mb-4 rounded-lg bg-slate-900/50 p-3 border border-slate-700/50">
                 <p className="text-sm leading-relaxed text-slate-300">
-                  "{nomination.reason}"
+                  &ldquo;{nomination.reason}&rdquo;
                 </p>
               </div>
             )}

@@ -23,7 +23,6 @@ export function LeaderboardPodium({ topThree }: LeaderboardPodiumProps) {
           const actualRank = index === 1 ? 1 : index === 0 ? 2 : 3
           const isFirst = actualRank === 1
           const isSecond = actualRank === 2
-          const isThird = actualRank === 3
 
           // Heights for podium effect
           const containerHeight = isFirst ? "h-80" : isSecond ? "h-64" : "h-56"
