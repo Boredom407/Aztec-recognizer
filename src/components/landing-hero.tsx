@@ -59,7 +59,7 @@ export function LandingHero() {
             <div className="mb-3 text-4xl">🏆</div>
             <h3 className="mb-2 text-lg font-semibold text-white">Top Contributors</h3>
             <p className="text-sm text-slate-400">
-              See who's making the biggest impact in the Aztec community
+              See who&apos;s making the biggest impact in the Aztec community
             </p>
           </div>
 

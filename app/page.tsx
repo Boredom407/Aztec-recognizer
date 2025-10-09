@@ -1,5 +1,3 @@
-import Link from "next/link"
-
 import { NominationDashboard } from "@/components/nomination-dashboard"
 import { LandingHero } from "@/components/landing-hero"
 import { getServerAuthSession } from "@/lib/auth"
