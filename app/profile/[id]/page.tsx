@@ -89,7 +89,7 @@ export default async function ProfilePage({
               <h1 className="text-2xl font-semibold text-zinc-900">
                 {profileUser.name ?? "Unnamed member"}
               </h1>
-              <p className="text-sm text-zinc-500">Community recognition profile</p>
+              <p className="text-sm text-zinc-500">Aztec Community recognition profile</p>
             </div>
           </div>
           <div className="flex flex-col items-end gap-2 text-right">

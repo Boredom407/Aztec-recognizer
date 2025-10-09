@@ -21,7 +21,7 @@ export function LandingHero() {
         {/* Main Heading */}
         <h1 className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
           Recognize{" "}
-          <span className="bg-lime-gradient bg-clip-text text-transparent">
+          <span className="text-lime-400">
             Aztec
           </span>
           <br className="hidden sm:inline" />
