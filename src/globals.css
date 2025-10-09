@@ -13,7 +13,33 @@ body {
 
 body {
   font-family: var(--font-inter);
-  background-image: linear-gradient(to right, #2E0700, #2D0500);
-  background-color: #2E0700;
+  background: linear-gradient(to bottom, #0a1628, #030712);
+  background-attachment: fixed;
   color: #ffffff;
+}
+
+@layer components {
+  /* Base card with lemon-green styling */
+  .card-base {
+    @apply rounded-lg border border-lime-500/30 bg-lime-500/10 backdrop-blur-sm shadow-lg transition-all duration-200;
+  }
+
+  .card-hover:hover {
+    @apply bg-lime-500/15 border-lime-500/40 shadow-lime-glow;
+  }
+
+  /* Primary button - lime green solid */
+  .btn-primary {
+    @apply rounded-lg bg-lime-500 px-6 py-3 font-semibold text-slate-900 shadow-md transition-all duration-200 hover:bg-lime-400 hover:shadow-lime-glow;
+  }
+
+  /* Secondary button - outlined */
+  .btn-secondary {
+    @apply rounded-lg border-2 border-lime-500/50 bg-transparent px-6 py-3 font-semibold text-lime-400 transition-all duration-200 hover:border-lime-500 hover:bg-lime-500/10;
+  }
+
+  /* Input fields */
+  .input-base {
+    @apply w-full rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-lime-500 focus:ring-2 focus:ring-lime-500/30;
+  }
 }

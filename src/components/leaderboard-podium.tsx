@@ -10,137 +10,152 @@ export function LeaderboardPodium({ topThree }: LeaderboardPodiumProps) {
     return null
   }
 
-  // Arrange as [2nd, 1st, 3rd] for podium visual effect
   const [first, second, third] = topThree
-  const arranged = [second, first, third].filter(Boolean)
 
   return (
-    <div className="mb-8">
-      {/* Podium Container */}
-      <div className="flex items-end justify-center gap-4 md:gap-8">
-        {arranged.map((entry, index) => {
-          // Determine actual rank (second=1, first=0, third=2 in arranged array)
-          const actualRank = index === 1 ? 1 : index === 0 ? 2 : 3
-          const isFirst = actualRank === 1
-          const isSecond = actualRank === 2
+    <div className="mb-12">
+      {/* Top 3 Cards - Horizontal Row, Equal Heights */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Second Place */}
+        {second && (
+          <div className="card-base p-6 border-2 border-slate-400/50 bg-lime-500/15 min-h-[320px] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-semibold text-slate-300">🥈 Runner-up</span>
+              <span className="text-2xl font-bold text-slate-300">#2</span>
+            </div>
 
-          // Heights for podium effect
-          const containerHeight = isFirst ? "h-80" : isSecond ? "h-64" : "h-56"
-          const medalSize = isFirst ? "h-16 w-16" : isSecond ? "h-14 w-14" : "h-12 w-12"
-          const avatarSize = isFirst ? 96 : isSecond ? 80 : 72
-
-          // Medal colors and icons
-          const medalBg = isFirst
-            ? "bg-gradient-to-br from-yellow-400 to-amber-600"
-            : isSecond
-            ? "bg-gradient-to-br from-slate-300 to-slate-500"
-            : "bg-gradient-to-br from-amber-600 to-amber-800"
-
-          const medalEmoji = isFirst ? "🥇" : isSecond ? "🥈" : "🥉"
-
-          const glowColor = isFirst
-            ? "shadow-lime-glow-strong"
-            : isSecond
-            ? "shadow-card-hover"
-            : "shadow-card"
-
-          return (
-            <div
-              key={entry.userId}
-              className={`flex ${containerHeight} w-full max-w-xs flex-col items-center justify-end`}
-            >
-              {/* Medal Badge */}
-              <div className={`mb-3 ${medalSize} flex items-center justify-center rounded-full ${medalBg} ${glowColor} animate-fade-in`}>
-                <span className="text-3xl">{medalEmoji}</span>
-              </div>
-
-              {/* Card */}
-              <div className={`card-base w-full p-6 text-center ${isFirst ? 'border-lime-500/50 shadow-lime-glow' : ''} animate-slide-up`}>
-                {/* Avatar */}
-                <div className="mb-4 flex justify-center">
-                  {entry.image ? (
-                    <Image
-                      src={entry.image}
-                      alt={entry.name ?? "Top contributor"}
-                      width={avatarSize}
-                      height={avatarSize}
-                      className={`rounded-full ${isFirst ? 'ring-4 ring-lime-500' : isSecond ? 'ring-4 ring-slate-400' : 'ring-4 ring-amber-600'}`}
-                    />
-                  ) : (
-                    <div
-                      className={`flex items-center justify-center rounded-full ${isFirst ? 'bg-lime-500 ring-4 ring-lime-500' : isSecond ? 'bg-slate-400 ring-4 ring-slate-400' : 'bg-amber-600 ring-4 ring-amber-600'} text-2xl font-bold text-white`}
-                      style={{ width: avatarSize, height: avatarSize }}
-                    >
-                      {entry.name?.[0]?.toUpperCase() ?? "?"}
-                    </div>
-                  )}
+            <div className="flex flex-col items-center flex-1">
+              {second.image ? (
+                <Image
+                  src={second.image}
+                  alt={second.name ?? "Runner-up"}
+                  width={80}
+                  height={80}
+                  className="rounded-full ring-4 ring-slate-400 mb-3"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-slate-400 ring-4 ring-slate-400 flex items-center justify-center text-2xl font-bold text-white mb-3">
+                  {second.name?.[0]?.toUpperCase() ?? "?"}
                 </div>
+              )}
 
-                {/* Name */}
-                <h3 className={`mb-2 font-bold ${isFirst ? 'text-2xl text-lime-500' : isSecond ? 'text-xl text-slate-300' : 'text-lg text-amber-500'}`}>
-                  {entry.name ?? "Unnamed member"}
-                </h3>
+              <h3 className="text-xl font-bold text-white text-center mb-2">
+                {second.name ?? "Unnamed member"}
+              </h3>
 
-                {/* Rank Badge */}
-                <div className="mb-3 text-sm text-slate-500">
-                  Rank #{actualRank}
+              <div className="mt-auto w-full space-y-2">
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/50">
+                  <span className="text-xs text-slate-400">Recognition Points</span>
+                  <span className="text-lg font-bold text-lime-400">{second.recognitionPoints}</span>
                 </div>
-
-                {/* Stats */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-lg bg-slate-900/50 px-3 py-2">
-                    <span className="text-xs text-slate-400">Recognition Points</span>
-                    <span className={`font-bold ${isFirst ? 'text-lime-500' : 'text-white'}`}>
-                      {entry.recognitionPoints}
-                    </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-center py-2 rounded bg-slate-900/30">
+                    <div className="text-slate-400">Nominations</div>
+                    <div className="font-semibold text-white">{second.nominationCount}</div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-lg bg-slate-900/30 px-2 py-1.5">
-                      <div className="text-slate-500">Nominations</div>
-                      <div className="font-semibold text-white">{entry.nominationCount}</div>
-                    </div>
-                    <div className="rounded-lg bg-slate-900/30 px-2 py-1.5">
-                      <div className="text-slate-500">Votes</div>
-                      <div className="font-semibold text-white">{entry.voteCount}</div>
-                    </div>
+                  <div className="text-center py-2 rounded bg-slate-900/30">
+                    <div className="text-slate-400">Votes</div>
+                    <div className="font-semibold text-white">{second.voteCount}</div>
                   </div>
                 </div>
-
-                {/* Trophy Animation for First Place */}
-                {isFirst && (
-                  <div className="mt-4 flex justify-center">
-                    <span className="text-2xl animate-glow">✨</span>
-                  </div>
-                )}
               </div>
             </div>
-          )
-        })}
-      </div>
+          </div>
+        )}
 
-      {/* Podium Base Visual */}
-      <div className="mt-1 flex items-end justify-center gap-4 md:gap-8">
-        {arranged.map((entry, index) => {
-          const actualRank = index === 1 ? 1 : index === 0 ? 2 : 3
-          const isFirst = actualRank === 1
-          const isSecond = actualRank === 2
-
-          const baseHeight = isFirst ? "h-24" : isSecond ? "h-16" : "h-12"
-          const baseBg = isFirst
-            ? "bg-gradient-to-t from-lime-600 to-lime-500"
-            : isSecond
-            ? "bg-gradient-to-t from-slate-600 to-slate-500"
-            : "bg-gradient-to-t from-amber-700 to-amber-600"
-
-          return (
-            <div
-              key={`base-${entry.userId}`}
-              className={`${baseHeight} w-full max-w-xs rounded-t-lg ${baseBg} flex items-center justify-center font-bold text-white shadow-lg`}
-            >
-              <span className="text-sm opacity-75">#{actualRank}</span>
+        {/* First Place */}
+        {first && (
+          <div className="card-base p-6 border-2 border-lime-500 bg-lime-500/20 shadow-lime-glow-strong min-h-[320px] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-semibold text-lime-400">🏆 Champion</span>
+              <span className="text-2xl font-bold text-lime-500">#1</span>
             </div>
-          )
-        })}
+
+            <div className="flex flex-col items-center flex-1">
+              {first.image ? (
+                <Image
+                  src={first.image}
+                  alt={first.name ?? "Champion"}
+                  width={80}
+                  height={80}
+                  className="rounded-full ring-4 ring-lime-500 mb-3"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-lime-500 ring-4 ring-lime-500 flex items-center justify-center text-2xl font-bold text-slate-900 mb-3">
+                  {first.name?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
+
+              <h3 className="text-xl font-bold text-lime-400 text-center mb-2">
+                {first.name ?? "Unnamed member"}
+              </h3>
+
+              <div className="mt-auto w-full space-y-2">
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-lime-500/20 border border-lime-500/30">
+                  <span className="text-xs text-lime-300">Recognition Points</span>
+                  <span className="text-lg font-bold text-lime-400">{first.recognitionPoints}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-center py-2 rounded bg-lime-500/10">
+                    <div className="text-lime-300">Nominations</div>
+                    <div className="font-semibold text-white">{first.nominationCount}</div>
+                  </div>
+                  <div className="text-center py-2 rounded bg-lime-500/10">
+                    <div className="text-lime-300">Votes</div>
+                    <div className="font-semibold text-white">{first.voteCount}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Third Place */}
+        {third && (
+          <div className="card-base p-6 border-2 border-amber-500/50 bg-lime-500/15 min-h-[320px] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-semibold text-amber-400">🥉 Third Place</span>
+              <span className="text-2xl font-bold text-amber-400">#3</span>
+            </div>
+
+            <div className="flex flex-col items-center flex-1">
+              {third.image ? (
+                <Image
+                  src={third.image}
+                  alt={third.name ?? "Third place"}
+                  width={80}
+                  height={80}
+                  className="rounded-full ring-4 ring-amber-500 mb-3"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-amber-500 ring-4 ring-amber-500 flex items-center justify-center text-2xl font-bold text-white mb-3">
+                  {third.name?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
+
+              <h3 className="text-xl font-bold text-white text-center mb-2">
+                {third.name ?? "Unnamed member"}
+              </h3>
+
+              <div className="mt-auto w-full space-y-2">
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/50">
+                  <span className="text-xs text-slate-400">Recognition Points</span>
+                  <span className="text-lg font-bold text-amber-400">{third.recognitionPoints}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-center py-2 rounded bg-slate-900/30">
+                    <div className="text-slate-400">Nominations</div>
+                    <div className="font-semibold text-white">{third.nominationCount}</div>
+                  </div>
+                  <div className="text-center py-2 rounded bg-slate-900/30">
+                    <div className="text-slate-400">Votes</div>
+                    <div className="font-semibold text-white">{third.voteCount}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
