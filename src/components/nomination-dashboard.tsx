@@ -150,81 +150,125 @@ export function NominationDashboard({
       <DashboardHeader name={currentUser.name} />
 
       {showCreateForm && (
-        <section className="rounded-2xl border border-white/10 bg-white/10 p-6 shadow-inner backdrop-blur">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <section className="card-base p-6">
+          <div className="mb-6 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-semibold">Create a nomination</h2>
-              <p className="text-sm text-white/70">
-                Choose a community member to recognize and optionally explain why they deserve it.
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <svg className="h-6 w-6 text-lime-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Create Nomination
+              </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Recognize a community member for their contributions
               </p>
             </div>
             {nominatableUsers.length === 0 && (
-              <p className="text-sm text-yellow-200">
-                Invite more teammates to nominate and vote!
-              </p>
+              <div className="rounded-lg bg-amber-500/10 px-3 py-2 border border-amber-500/20">
+                <p className="text-sm text-amber-400">
+                  ⚠️ Invite teammates to get started!
+                </p>
+              </div>
             )}
           </div>
 
           <form
-            className="mt-6 grid gap-4 md:grid-cols-2"
+            className="space-y-5"
             onSubmit={handleCreateNomination}
             data-testid="nomination-form"
           >
-            <label className="flex flex-col gap-2 text-sm md:col-span-1">
-              <span className="font-medium text-white">Nominee</span>
+            {/* Nominee Selection */}
+            <div>
+              <label htmlFor="nominee-select" className="mb-2 block text-sm font-medium text-slate-300">
+                Who deserves recognition?
+              </label>
               <select
+                id="nominee-select"
                 value={formState.nomineeId}
                 onChange={(event) =>
                   setFormState((prev) => ({ ...prev, nomineeId: event.target.value }))
                 }
-                className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white outline-none transition focus:border-yellow-300 focus:ring-2 focus:ring-yellow-400"
+                className="input-base w-full text-base"
                 required
                 disabled={nominatableUsers.length === 0 || isSubmitting}
                 data-testid="nomination-select"
               >
-                <option value="" disabled>
+                <option value="" disabled className="bg-slate-800 text-slate-400">
                   {nominatableUsers.length === 0
                     ? "No other members available"
-                    : "Select a community member"}
+                    : "Select a community member..."}
                 </option>
                 {nominatableUsers.map((user) => (
-                  <option key={user.id} value={user.id} className="text-brandDark">
+                  <option key={user.id} value={user.id} className="bg-slate-800 text-white">
                     {user.name ?? "Unnamed member"}
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
 
-            <label className="flex flex-col gap-2 text-sm md:col-span-1">
-              <span className="font-medium text-white">Reason (optional)</span>
-              <textarea
-                value={formState.reason}
-                onChange={(event) =>
-                  setFormState((prev) => ({ ...prev, reason: event.target.value }))
-                }
-                maxLength={500}
-                rows={3}
-                placeholder="Share why this person deserves recognition."
-                className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white outline-none transition placeholder:text-white/40 focus:border-yellow-300 focus:ring-2 focus:ring-yellow-400"
-                disabled={isSubmitting}
-                data-testid="nomination-reason"
-              />
-              <span className="text-xs text-white/50">
-                {500 - formState.reason.length} characters remaining
-              </span>
-            </label>
+            {/* Reason Textarea */}
+            <div>
+              <label htmlFor="nomination-reason" className="mb-2 block text-sm font-medium text-slate-300">
+                Why do they deserve it? <span className="text-slate-500">(optional)</span>
+              </label>
+              <div className="relative">
+                <textarea
+                  id="nomination-reason"
+                  value={formState.reason}
+                  onChange={(event) =>
+                    setFormState((prev) => ({ ...prev, reason: event.target.value }))
+                  }
+                  maxLength={500}
+                  rows={4}
+                  placeholder="Share their achievement, contribution, or why they stand out..."
+                  className="input-base w-full resize-none text-base"
+                  disabled={isSubmitting}
+                  data-testid="nomination-reason"
+                />
+                <div className="absolute bottom-3 right-3 text-xs text-slate-500">
+                  {formState.reason.length}/500
+                </div>
+              </div>
+            </div>
 
+            {/* Error Message */}
             {formError && (
-              <p className="md:col-span-2 text-sm font-medium text-red-300">{formError}</p>
+              <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
+                <p className="text-sm font-medium text-red-400">{formError}</p>
+              </div>
             )}
 
-            <div className="md:col-span-2 flex items-center justify-end gap-3">
+            {/* Submit Button */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setFormState({ nomineeId: "", reason: "" })}
+                className="btn-secondary text-sm"
+                disabled={isSubmitting}
+              >
+                Clear
+              </button>
               <button
                 type="submit"
-                className="rounded-lg bg-yellow-400 px-4 py-2 text-sm font-semibold text-brandDarker shadow transition hover:bg-yellow-300 disabled:opacity-50"
-                disabled={isSubmitting || nominatableUsers.length === 0}
+                className="btn-primary"
+                disabled={isSubmitting || nominatableUsers.length === 0 || !formState.nomineeId}
               >
-                {isSubmitting ? "Submitting..." : "Submit nomination"}
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Submit Nomination
+                  </span>
+                )}
               </button>
             </div>
           </form>

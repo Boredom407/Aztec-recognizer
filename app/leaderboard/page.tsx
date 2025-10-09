@@ -16,21 +16,29 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
   const leaderboard = await fetchLeaderboard({ page, pageSize })
 
   return (
-    <main className="min-h-screen bg-zinc-100 py-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4">
-        <header className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-zinc-900">Community leaderboard</h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              Ranked by a combination of nominations received and community votes.
-            </p>
+    <main className="min-h-screen px-4 py-10 md:py-14">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+        <header className="card-base p-6 md:p-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white md:text-4xl flex items-center gap-3">
+                <span className="text-lime-500">🏆</span>
+                Community Leaderboard
+              </h1>
+              <p className="mt-2 text-sm text-slate-400">
+                Ranked by a combination of nominations received and community votes.
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="btn-secondary flex items-center gap-2 whitespace-nowrap"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to home
+            </Link>
           </div>
-          <Link
-            href="/"
-            className="rounded border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-50"
-          >
-            Back to home
-          </Link>
         </header>
 
         <LeaderboardTable
@@ -38,6 +46,7 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
           page={leaderboard.page}
           pageSize={leaderboard.pageSize}
           totalNominees={leaderboard.totalNominees}
+          totalPages={leaderboard.totalPages}
         />
       </div>
     </main>
